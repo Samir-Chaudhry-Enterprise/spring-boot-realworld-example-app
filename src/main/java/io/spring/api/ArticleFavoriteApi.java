@@ -8,7 +8,8 @@ import io.spring.core.article.ArticleRepository;
 import io.spring.core.favorite.ArticleFavorite;
 import io.spring.core.favorite.ArticleFavoriteRepository;
 import io.spring.core.user.User;
-import java.util.HashMap;
+import java.util.Collections;
+import java.util.Map;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -43,20 +44,11 @@ public class ArticleFavoriteApi {
         articleRepository.findBySlug(slug).orElseThrow(ResourceNotFoundException::new);
     articleFavoriteRepository
         .find(article.getId(), user.getId())
-        .ifPresent(
-            favorite -> {
-              articleFavoriteRepository.remove(favorite);
-            });
+        .ifPresent(articleFavoriteRepository::remove);
     return responseArticleData(articleQueryService.findBySlug(slug, user).get());
   }
 
-  private ResponseEntity<HashMap<String, Object>> responseArticleData(
-      final ArticleData articleData) {
-    return ResponseEntity.ok(
-        new HashMap<String, Object>() {
-          {
-            put("article", articleData);
-          }
-        });
+  private ResponseEntity<Map<String, Object>> responseArticleData(final ArticleData articleData) {
+    return ResponseEntity.ok(Collections.singletonMap("article", articleData));
   }
 }
